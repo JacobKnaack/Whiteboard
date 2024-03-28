@@ -4,18 +4,27 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
-  <script src="../lib//Whiteboard/Whiteboard.js"></script>
+  <script src="../lib/Whiteboard/Whiteboard.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
 </head>
 <body>
   <main id="app"></main>
   <script>
+    const socket = io('http://localhost:3000');
+    // socket client functions
+    function emitDrawData(x, y, width, height) {
+      socket.emit('draw', { x, y, width, height });
+    }
+
     const app = document.getElementById('app');
     const canvas = document.createElement('canvas');
-    canvas.setAttribute('willReadFrequently', true);
     app.append(canvas);
 
+    // Array to store rectangles
+    const rectangles = [];
+
     // testing Whiteboard Class
-    let whiteboard = new Whiteboard(canvas);
+    const whiteboard = new Whiteboard(canvas);
     console.log(whiteboard);
 
     // Event listeners to trigger drawing
@@ -24,10 +33,16 @@
     // canvas.addEventListener('mousemove', whiteboard.drawLine);
     canvas.addEventListener('mousemove', (e) => {
       let { x,y,height,width } = whiteboard.getRectValues(e);
-      whiteboard.drawSquare(x, y, width, height);
+      whiteboard.drawRect(x, y, width, height);
+      whiteboard.drawShapes(rectangles);
+      emitDrawData(x, y, width, height);
     });
-
+    socket.on('draw', (data) => {
+      console.log('DATA FROM OTHER CLIENT', data);
+      whiteboard.drawRect(data.x, data.y, data.width, data.height);
+    });
     canvas.addEventListener('mouseup', (e) => {
+      rectangles.push(whiteboard.getRectValues(e));
       whiteboard.stopDrawing(e);
     });
     canvas.addEventListener('mouseout', whiteboard.stopDrawing);
