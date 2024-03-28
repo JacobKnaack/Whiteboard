@@ -33,47 +33,6 @@
     canvas.addEventListener('mouseout', whiteboard.stopDrawing);
     window.addEventListener('resize', whiteboard.resizeCanvas);
     whiteboard.resizeCanvas(); // Initial call
-
-    /**
-     * **************************************
-     * Square drawing functions from Chat GPT
-     * **************************************
-    
-    let startX, startY; // Starting coordinates of the square
-
-    // Event listener for mouse down event
-    canvas.addEventListener('mousedown', function (event) {
-      isDrawing = true; // Set drawing flag to true
-      startX = event.offsetX; // Get the x-coordinate of the mouse pointer relative to the canvas
-      startY = event.offsetY; // Get the y-coordinate of the mouse pointer relative to the canvas
-    });
-
-    // Event listener for mouse move event
-    canvas.addEventListener('mousemove', function (event) {
-      if (isDrawing) {
-        let currentX = event.offsetX; // Get the current x-coordinate of the mouse pointer
-        let currentY = event.offsetY; // Get the current y-coordinate of the mouse pointer
-        let size = Math.abs(currentX - startX); // Calculate the size of the square
-        context.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
-        drawSquare(context, startX, startY, size, 'blue'); // Draw the square
-      }
-    });
-
-    // Event listener for mouse up event
-    canvas.addEventListener('mouseup', function (event) {
-      isDrawing = false; // Set drawing flag to false
-      var currentX = event.offsetX; // Get the current x-coordinate of the mouse pointer
-      let currentY = event.offsetY; // Get the current y-coordinate of the mouse pointer
-      var size = Math.abs(currentX - startX); // Calculate the size of the square
-      drawSquare(context, startX, startY, size, 'blue'); // Draw the final square
-    });
-
-    // Function to draw a square on the canvas
-    function drawSquare(context, x, y, size, color) {
-      context.fillStyle = color; // Set the fill color
-      context.fillRect(x, y, size, size); // Draw the square
-    }
-    */
   </script>
 </body>
 </html>
