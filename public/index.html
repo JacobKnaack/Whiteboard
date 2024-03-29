@@ -4,8 +4,37 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
+  <script src="../lib//App//App.js"></script>
   <script src="../lib/Whiteboard/Whiteboard.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+  <link rel="stylesheet" href="./assets/css/reset.css"/>
+  <style>
+    #app-controls {
+      width: 500px;
+      background-color: grey;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      position: fixed;
+      bottom: 50px;
+      left: calc(50vw - 250px);
+      padding: 12px;
+    }
+
+    #app-header {
+      width: 100%;
+      height: 50px;
+      background-color: grey;
+      display: flex;
+      flex-direction: row;
+      justify-content: 'space-between';
+      align-items: center;
+      position: fixed;
+      top: 0px;
+      left: 0px;
+    }
+  </style>
 </head>
 <body>
   <main id="app"></main>
@@ -20,31 +49,85 @@
     const canvas = document.createElement('canvas');
     app.append(canvas);
 
-    // Array to store rectangles
-    const rectangles = [];
+    /**
+     * Whiteboard Control Elements
+     */
+    const controls = document.createElement('form');
+    controls.addEventListener('submit', (e) => e.preventDefault());
+    controls.setAttribute('id', 'app-controls');
+
+    const selectBtn = document.createElement('button');
+    const rectangleBtn = document.createElement('button');
+    const lineBtn = document.createElement('button');
+    const clearBtn = document.createElement('button');
+    selectBtn.textContent = 'Select';
+    rectangleBtn.textContent = 'Rectangles';
+    lineBtn.textContent = 'Lines';
+    clearBtn.textContent = 'Clear Whiteboard';
+    controls.append(selectBtn, rectangleBtn, lineBtn, clearBtn);
+
+    /**
+     * Whiteboard Navigation and option elements
+     */
+    const header = document.createElement('header');
+    header.setAttribute('id', 'app-header');
+    const title = document.createElement('h1');
+    title.textContent = 'Whiteboard';
+    header.append(title);
+    
+    document.querySelector('#app').append(header, controls);
+
 
     // testing Whiteboard Class
     const whiteboard = new Whiteboard(canvas);
+    whiteboard.addShape('rectangle', { x: 50, y: 75, width: 100, height: 100 });
+    whiteboard.addShape('rectangle', { x: 200, y: 75, width: 120, height: 240});
     console.log(whiteboard);
+    whiteboard.drawShapes();
 
-    // Event listeners to trigger drawing
+
+    /*****************************************************
+     * Below are event listeners for the canvas and window objects,
+     * Used for handling mouse events and drawing logic
+     ****************************************************/
+
+    // Event listeners to trigger drawing / selection
     canvas.addEventListener('mousedown', whiteboard.startDrawing);
+    // canvas.addEventListener('mousedown', (e) => {
+    //   whiteboard.selectShape(e);
+    // });
 
-    // canvas.addEventListener('mousemove', whiteboard.drawLine);
+    // Event Listeners for drawing lines / rectangles / selecting shapes
     canvas.addEventListener('mousemove', (e) => {
-      let { x,y,height,width } = whiteboard.getRectValues(e);
-      whiteboard.drawRect(x, y, width, height);
-      whiteboard.drawShapes(rectangles);
-      emitDrawData(x, y, width, height);
+      whiteboard.drawLine(e);
+      whiteboard.drawShapes();
     });
+    // canvas.addEventListener('mousemove', (e) => {
+    //   // rectangle drawing functions
+    //   if (whiteboard.isDrawing) {
+    //     let { x,y,height,width } = whiteboard.getRectValues(e);
+    //     whiteboard.drawRect(x, y, width, height);
+    //     whiteboard.drawShapes();
+    //     emitDrawData(x, y, width, height);
+    //   }
+    // });
+    // canvas.addEventListener('mousemove', (e) => {
+    //   whiteboard.moveSelection(e);
+    // });
+
+
     socket.on('draw', (data) => {
       console.log('DATA FROM OTHER CLIENT', data);
       whiteboard.drawRect(data.x, data.y, data.width, data.height);
     });
     canvas.addEventListener('mouseup', (e) => {
-      rectangles.push(whiteboard.getRectValues(e));
+      // let shapeValues = whiteboard.getRectValues(e);
+      // whiteboard.addShape('rectangle', shapeValues);
       whiteboard.stopDrawing(e);
     });
+    // canvas.addEventListener("mouseup", function (e) {
+    //   whiteboard.selection = null;
+    // });
     canvas.addEventListener('mouseout', whiteboard.stopDrawing);
     window.addEventListener('resize', whiteboard.resizeCanvas);
     whiteboard.resizeCanvas(); // Initial call
